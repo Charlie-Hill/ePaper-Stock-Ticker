@@ -6,6 +6,7 @@ import os
 import sys
 import socket
 import requests
+from datetime import datetime
 from enum import Enum
 from PIL import Image,ImageDraw,ImageFont
 
@@ -75,8 +76,13 @@ def updateDisplay(stockData, epd):
     
     draw.text((0,0),"MHC",font=font25,fill = 0)
     draw.text((0,25),"MyHealthChecked Plc.",font=font15,fill = 0)
-    draw.rectangle([(0,0),(50,50)],outline = 0)
-    
+    # draw.rectangle([(0,100),(250,250)],outline = 0)
+    draw.line((0,101, 300,101), fill=0)
+
+    dayText = datetime.today().strftime("%A")[0:3]
+    fullDateText = datetime.today().strftime("%d %b %y | %H:%M")
+    draw.text((0, 102), "{} {}".format(dayText, fullDateText), font=font15, fill=0)
+
     image=image.transpose(Image.ROTATE_90)
     epd.display(epd.getbuffer(image))
 
