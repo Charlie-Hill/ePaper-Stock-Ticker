@@ -18,6 +18,7 @@ if os.path.exists(libdir):
 from waveshare_epd import epd2in13_V2
 
 configFile = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'config.yaml')
+font15 = ImageFont.truetype(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'Font.ttc'), 15)
 font25 = ImageFont.truetype(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'Font.ttc'), 25)
 
 class connectionType(Enum):
@@ -66,25 +67,18 @@ def updateStockTicker(config, epd):
 # Update the e-Paper display
 def updateDisplay(stockData, epd):
     logging.info("[Display] Starting display update...")
-    
-    epd.Clear(0xFF)
-    
-    time_image = Image.new('1', (epd.height, epd.width), 255)
-    time_image = time_image.rotate(180, expand=True)
-    time_draw = ImageDraw.Draw(time_image)
-    
-    epd.displayPartBaseImage(epd.getbuffer(time_image))
-    
-    epd.init(epd.PART_UPDATE)
-    num = 0
-    while (True):
-        time_draw.rectangle((120, 80, 220, 105), fill = 255)
-        time_draw.text((120, 80), "MHC", font = font25, fill = 0)
-        epd.displayPartial(epd.getbuffer(time_image))
-        num = num + 1
-        if(num == 10):
-            break
 
+    epd = epd2in13_V2.EPD()
+    epd.init(epd.FULL_UPDATE)
+    image = Image.new('L', (epd.height, epd.width), 255)    # 255: clear the image with white
+    draw = ImageDraw.Draw(image)              
+    
+    draw.text((0,0),"MHC",font=font25,fill = 0)
+    draw.text((0,25),"MyHealthChecked Plc.",font=font15,fill = 0)
+    draw.rectangle([(0,0),(50,50)],outline = 0)
+    
+    image=image.transpose(Image.ROTATE_90)
+    epd.display(epd.getbuffer(image))
 
 # Fetch stock data from API
 def fetchStockData(config):
