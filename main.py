@@ -13,14 +13,26 @@ from PIL import Image,ImageDraw,ImageFont
 dirname = os.path.dirname(__file__)
 
 libdir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'lib')
-print (libdir)
 if os.path.exists(libdir):
     sys.path.append(libdir)
 from waveshare_epd import epd2in13_V2
 
+# Globals
 configFile = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'config.yaml')
+
+# Fonts
 font15 = ImageFont.truetype(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'Font.ttc'), 15)
+font20 = ImageFont.truetype(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'Font.ttc'), 20)
 font25 = ImageFont.truetype(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'Font.ttc'), 25)
+font32 = ImageFont.truetype(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'Font.ttc'), 32)
+
+# Images
+upBMP = Image.open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'up.bmp'))
+upBMP = upBMP.resize((25, 25))
+downBMP = Image.open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'down.bmp'))
+downBMP = downBMP.resize((25, 25))
+
+currentTickerIndex = 0
 
 class connectionType(Enum):
     INTERNET = 1
@@ -61,7 +73,17 @@ def main(loglevel=logging.WARNING):
 
 # Update the ticker, load new data & refresh display
 def updateStockTicker(config, epd):
-    stockData = fetchStockData(config)
+    global currentTickerIndex
+
+    stockData = fetchStockData(config, config["stockData"]["tickers"][currentTickerIndex])
+
+    if(currentTickerIndex != (len(config["stockData"]["tickers"]) - 1)):
+        currentTickerIndex += 1
+    else:
+        currentTickerIndex = 0
+
+    logging.info("[Current Ticker] Current ticker has updated to index {} ({})".format(currentTickerIndex, config["stockData"]["tickers"][currentTickerIndex]))
+
     if(config["debug"]["ignoreDisplayCode"] == False):
         updateDisplay(stockData, epd)
 
@@ -74,10 +96,21 @@ def updateDisplay(stockData, epd):
     image = Image.new('L', (epd.height, epd.width), 255)    # 255: clear the image with white
     draw = ImageDraw.Draw(image)              
     
-    draw.text((0,0),"MHC",font=font25,fill = 0)
-    draw.text((0,25),"MyHealthChecked Plc.",font=font15,fill = 0)
+    draw.text((0,0),stockData["ticker"],font=font25,fill = 0)
+    draw.text((0,25),stockData["companyName"],font=font15,fill = 0)
+
+    percentageSinceLastClose = round(calculatePercentageIncreaseDecrease(stockData["previousClose"],stockData["price"]), 2)
+    draw.text((180, 0),"{:.2f}%".format(percentageSinceLastClose) ,font=font20,fill = 0)
+    if(percentageSinceLastClose >= 0):
+        image.paste(upBMP, (150,0))
+    else:
+        image.paste(downBMP, (150,0))    
+
+
     # draw.rectangle([(0,100),(250,250)],outline = 0)
     draw.line((0,101, 300,101), fill=0)
+
+    draw.text((0, 50), "{}".format(stockData["price"]), font=font32,fill=0)
 
     dayText = datetime.today().strftime("%A")[0:3]
     fullDateText = datetime.today().strftime("%d %b %y | %H:%M")
@@ -87,8 +120,9 @@ def updateDisplay(stockData, epd):
     epd.display(epd.getbuffer(image))
 
 # Fetch stock data from API
-def fetchStockData(config):
-    requestUrl = (config['stockData']['url']) + "stockInfo/{}".format("MHC.L")
+def fetchStockData(config, ticker):
+    requestUrl = config['stockData']['url'] + "stockInfo/{}".format(ticker)
+    logging.info("[Stock Data] Attempting to fetch data for ticker: {}".format(ticker))
     response = requests.get(requestUrl)
     if(response.status_code == 200):
         return response.json()
@@ -112,6 +146,11 @@ def connectionCheck(conType):
         return False
     elif(conType == connectionType.API):
         print("api if check")
+
+# Percentage increase/decrease
+def calculatePercentageIncreaseDecrease(num1, num2):
+    # (x2 - x1) * 100 / x1
+    return (num2 - num1) * 100 / num1
 
 # def getStockData():
     

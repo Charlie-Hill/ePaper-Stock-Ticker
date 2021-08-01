@@ -1,5 +1,8 @@
 stockData:
-  tickers: mhc.l,kod.l,bp.l
-  url: http://x.x.x.x:1337/
+  tickers:
+    - mhc.l
+    - kod.l
+    - bp.l
+  url: http://5.135.154.93:1337/
 debug:
   ignoreDisplayCode: true
