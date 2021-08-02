@@ -19,6 +19,7 @@ from waveshare_epd import epd2in13_V2
 
 # Globals
 configFile = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'config.yaml')
+currentTickerIndex = 0
 
 # Fonts
 font15 = ImageFont.truetype(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'Font.ttc'), 15)
@@ -31,8 +32,6 @@ upBMP = Image.open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'up
 upBMP = upBMP.resize((25, 25))
 downBMP = Image.open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'down.bmp'))
 downBMP = downBMP.resize((25, 25))
-
-currentTickerIndex = 0
 
 class connectionType(Enum):
     INTERNET = 1
@@ -149,7 +148,6 @@ def connectionCheck(conType):
 
 # Percentage increase/decrease
 def calculatePercentageIncreaseDecrease(num1, num2):
-    # (x2 - x1) * 100 / x1
     return (num2 - num1) * 100 / num1
 
 # def getStockData():
