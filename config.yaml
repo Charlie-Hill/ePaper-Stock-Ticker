@@ -5,4 +5,4 @@ stockData:
     - bp.l
   url: https://api.londonmarket.xyz/
 debug:
-  ignoreDisplayCode: true
+  ignoreDisplayCode: false
