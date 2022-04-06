@@ -3,6 +3,6 @@ stockData:
     - mhc.l
     - kod.l
     - bp.l
-  url: http://5.135.154.93:1337/
+  url: https://api.londonmarket.xyz/
 debug:
   ignoreDisplayCode: true
