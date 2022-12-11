@@ -1,5 +1,7 @@
 stockData:
   tickers:
+    - rblx
+    - gme
     - mhc.l
     - kod.l
     - bp.l
