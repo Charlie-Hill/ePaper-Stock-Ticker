@@ -2,6 +2,8 @@
 
 A RasperryPi powered desktop stock ticker using a Waveshare 2.13" e-Paper display. Stock price & info data is provided by a separate (now a private repo) REST API running on Express.js to scrape stock information from either Yahoo Finance or Google Finance. 
 
+![Image of the device](https://i.imgur.com/SJTKR0b.jpeg)
+
 Watch the YouTube video demo [here](https://www.youtube.com/watch?v=EPe9F5etSSY).
 
 # Requirements (recommended)
